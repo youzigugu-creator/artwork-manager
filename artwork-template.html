@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>作品管理テンプレート</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Noto+Serif+JP:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #161616;
+    --surface2: #1e1e1e;
+    --border: #2a2a2a;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: rgba(201,168,76,0.15);
+    --text: #e8e0d5;
+    --text-dim: #888;
+    --text-muted: #555;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* Header */
+  .page-header {
+    text-align: center;
+    padding: 32px 0 40px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 32px;
+  }
+
+  .page-emoji {
+    font-size: 36px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .page-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+  }
+
+  .page-subtitle {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.2em;
+    margin-top: 6px;
+  }
+
+  /* Section label */
+  .section-label {
+    font-size: 10px;
+    letter-spacing: 0.25em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-left: 2px;
+  }
+
+  /* Photo area */
+  .photo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    margin-bottom: 32px;
+  }
+
+  .photo-slot {
+    aspect-ratio: 1;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .photo-slot:hover { border-color: var(--gold); }
+  .photo-slot.main { grid-column: span 2; grid-row: span 2; }
+
+  .photo-slot-icon { font-size: 18px; opacity: 0.4; }
+  .photo-slot-label { font-size: 9px; color: var(--text-muted); letter-spacing: 0.15em; }
+
+  /* Fields */
+  .fields-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 20px;
+  }
+
+  .field-row {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    gap: 12px;
+    min-height: 44px;
+  }
+
+  .field-row:last-child { border-bottom: none; }
+
+  .field-key {
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--text-muted);
+    min-width: 90px;
+    padding-top: 2px;
+    flex-shrink: 0;
+  }
+
+  .field-value {
+    font-size: 13px;
+    color: var(--text);
+    flex: 1;
+    line-height: 1.5;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    resize: none;
+    width: 100%;
+  }
+
+  .field-value::placeholder { color: var(--text-muted); font-size: 12px; }
+
+  /* Status badge */
+  .status-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 10px 16px;
+  }
+
+  .status-btn {
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: 'Noto Serif JP', serif;
+    transition: all 0.15s;
+  }
+
+  .status-btn.active-selling { background: rgba(100,180,100,0.15); border-color: #6ab46a; color: #8dd48d; }
+  .status-btn.active-making { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+  .status-btn.active-ended { background: rgba(150,150,150,0.1); border-color: #666; color: #888; }
+  .status-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+  /* Price block */
+  .price-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .price-cell {
+    padding: 14px 16px;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .price-cell:nth-child(2) { border-right: none; }
+  .price-cell:nth-child(3) { border-right: 1px solid var(--border); border-bottom: none; }
+  .price-cell:last-child { border-right: none; border-bottom: none; }
+
+  .price-label {
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+
+  .price-input {
+    font-size: 18px;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold-light);
+    background: transparent;
+    border: none;
+    outline: none;
+    width: 100%;
+    font-weight: 300;
+  }
+
+  .price-input::placeholder { color: var(--text-muted); font-size: 14px; }
+
+  .profit-value {
+    font-size: 18px;
+    font-family: 'Cormorant Garamond', serif;
+    color: var(--gold);
+  }
+
+  /* Channel tags */
+  .channel-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .channel-tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-family: 'Noto Serif JP', serif;
+    transition: all 0.15s;
+  }
+
+  .channel-tag.active { background: var(--gold-dim); border-color: var(--gold); color: var(--gold); }
+  .channel-tag:hover { border-color: var(--gold); }
+
+  /* Memo textarea */
+  .memo-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+  }
+
+  .memo-textarea {
+    width: 100%;
+    min-height: 80px;
+    background: transparent;
+    border: none;
+    outline: none;
+    font-family: 'Noto Serif JP', serif;
+    font-weight: 300;
+    font-size: 13px;
+    color: var(--text);
+    resize: vertical;
+    line-height: 1.8;
+  }
+
+  .memo-textarea::placeholder { color: var(--text-muted); }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 28px 0;
+  }
+
+  /* Copy button */
+  .copy-btn {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold);
+    border-radius: 8px;
+    color: var(--gold);
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 12px;
+  }
+
+  .copy-btn:hover { background: rgba(201,168,76,0.25); }
+
+  .notion-hint {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+    padding: 0 8px;
+  }
+
+  .notion-hint a {
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  /* Floating note */
+  .float-note {
+    position: fixed;
+    bottom: 16px;
+    right: 16px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    max-width: 180px;
+    line-height: 1.6;
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <span class="page-emoji">💍</span>
+  <div class="page-title">作品管理</div>
+  <div class="page-subtitle">youzigugu-creator · handmade accessories</div>
+</div>
+
+<!-- 写真 -->
+<div class="section-label">📷 写真</div>
+<div class="photo-grid">
+  <div class="photo-slot main">
+    <span class="photo-slot-icon">＋</span>
+    <span class="photo-slot-label">メイン写真</span>
+  </div>
+  <div class="photo-slot">
+    <span class="photo-slot-icon">＋</span>
+    <span class="photo-slot-label">着用</span>
+  </div>
+  <div class="photo-slot">
+    <span class="photo-slot-icon">＋</span>
+    <span class="photo-slot-label">詳細</span>
+  </div>
+</div>
+
+<!-- 基本情報 -->
+<div class="section-label">📌 基本情報</div>
+<div class="fields-block" style="margin-bottom:20px">
+  <div class="field-row">
+    <span class="field-key">商品名</span>
+    <input class="field-value" type="text" placeholder="例）フリーサイズリング">
+  </div>
+  <div class="field-row">
+    <span class="field-key">シリーズ名</span>
+    <input class="field-value" type="text" placeholder="例）Repos / ルポ">
+  </div>
+  <div class="field-row">
+    <span class="field-key">カテゴリ</span>
+    <input class="field-value" type="text" placeholder="リング / ネックレス / ピアス / イヤーカフ など">
+  </div>
+</div>
+
+<!-- ステータス -->
+<div class="section-label">🔖 ステータス</div>
+<div class="fields-block" style="margin-bottom:20px">
+  <div class="status-row" id="statusRow">
+    <button class="status-btn" onclick="toggleStatus(this,'active-selling')">販売中</button>
+    <button class="status-btn" onclick="toggleStatus(this,'active-making')">制作中</button>
+    <button class="status-btn" onclick="toggleStatus(this,'active-ended')">販売終了</button>
+  </div>
+</div>
+
+<!-- サイズ・仕様 -->
+<div class="section-label">📐 サイズ・仕様</div>
+<div class="fields-block" style="margin-bottom:20px">
+  <div class="field-row">
+    <span class="field-key">サイズ</span>
+    <input class="field-value" type="text" placeholder="例）フリーサイズ / 約40cm＋アジャスター">
+  </div>
+  <div class="field-row">
+    <span class="field-key">素材</span>
+    <input class="field-value" type="text" placeholder="例）ゴールドフィルド、天然石">
+  </div>
+  <div class="field-row">
+    <span class="field-key">カラー</span>
+    <input class="field-value" type="text" placeholder="例）ゴールド / シルバー">
+  </div>
+</div>
+
+<!-- お金まわり -->
+<div class="section-label">💰 お金まわり</div>
+<div class="fields-block" style="margin-bottom:20px">
+  <div class="price-grid">
+    <div class="price-cell">
+      <div class="price-label">原価</div>
+      <input class="price-input" id="cost" type="number" placeholder="¥0" oninput="calcProfit()">
+    </div>
+    <div class="price-cell">
+      <div class="price-label">販売価格</div>
+      <input class="price-input" id="price" type="number" placeholder="¥0" oninput="calcProfit()">
+    </div>
+    <div class="price-cell">
+      <div class="price-label">利益</div>
+      <div class="profit-value" id="profit">—</div>
+    </div>
+    <div class="price-cell">
+      <div class="price-label">利益率</div>
+      <div class="profit-value" id="margin">—</div>
+    </div>
+  </div>
+</div>
+
+<!-- 販売情報 -->
+<div class="section-label">🛍 販売情報</div>
+<div class="fields-block" style="margin-bottom:20px">
+  <div class="field-row">
+    <span class="field-key">チャネル</span>
+    <div class="channel-row">
+      <button class="channel-tag" onclick="this.classList.toggle('active')">Instagram</button>
+      <button class="channel-tag" onclick="this.classList.toggle('active')">イベント</button>
+      <button class="channel-tag" onclick="this.classList.toggle('active')">その他</button>
+    </div>
+  </div>
+  <div class="field-row">
+    <span class="field-key">販売開始日</span>
+    <input class="field-value" type="text" placeholder="例）2025/04/24">
+  </div>
+  <div class="field-row">
+    <span class="field-key">販売終了日</span>
+    <input class="field-value" type="text" placeholder="例）2025/04/末">
+  </div>
+  <div class="field-row">
+    <span class="field-key">再販予定</span>
+    <input class="field-value" type="text" placeholder="あり / なし / 未定">
+  </div>
+</div>
+
+<!-- 制作メモ -->
+<div class="section-label">📝 制作メモ</div>
+<div class="memo-box">
+  <textarea class="memo-textarea" placeholder="作り方のコツ、改善したい点、気づきなど自由に…"></textarea>
+</div>
+
+<!-- お客さんの反応 -->
+<div class="section-label">💬 お客さんの反応</div>
+<div class="memo-box" style="margin-bottom:32px">
+  <textarea class="memo-textarea" placeholder="「これ可愛い！」とか、DMでもらったコメントなど…"></textarea>
+</div>
+
+<hr class="divider">
+
+<!-- Notionへのコピー案内 -->
+<button class="copy-btn" onclick="copyTemplate()">📋 ノーション用テキストをコピー</button>
+<p class="notion-hint">
+  コピーしてノーションの新規ページに貼り付けてね。<br>
+  写真はノーション上でドラッグ＆ドロップで追加できるよ 🙂
+</p>
+
+<div class="float-note">
+  💡 このページはノーションのテンプレート確認用。実際の入力はノーション上でね！
+</div>
+
+<script>
+function toggleStatus(btn, cls) {
+  const all = document.querySelectorAll('.status-btn');
+  all.forEach(b => b.className = 'status-btn');
+  btn.classList.add(cls);
+}
+
+function calcProfit() {
+  const cost = parseFloat(document.getElementById('cost').value) || 0;
+  const price = parseFloat(document.getElementById('price').value) || 0;
+  const profit = price - cost;
+  const margin = price > 0 ? Math.round((profit / price) * 100) : 0;
+  document.getElementById('profit').textContent = profit > 0 ? `¥${profit.toLocaleString()}` : '—';
+  document.getElementById('margin').textContent = price > 0 ? `${margin}%` : '—';
+}
+
+function copyTemplate() {
+  const text = `# 💍 作品名
+
+## 📌 基本情報
+- 商品名：
+- シリーズ名：
+- カテゴリ：
+
+## 🔖 ステータス
+[ ] 販売中　[ ] 制作中　[ ] 販売終了
+
+## 📐 サイズ・仕様
+- サイズ：
+- 素材：
+- カラー：
+
+## 💰 お金まわり
+- 原価：¥
+- 販売価格：¥
+- 利益：¥
+- 利益率：%
+
+## 🛍 販売情報
+- チャネル：Instagram / イベント / その他
+- 販売開始日：
+- 販売終了日：
+- 再販予定：
+
+## 📝 制作メモ
+
+
+## 💬 お客さんの反応
+
+`;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ コピーしました！';
+    setTimeout(() => btn.textContent = '📋 ノーション用テキストをコピー', 2000);
+  });
+}
+</script>
+</body>
+</html>
